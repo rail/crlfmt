@@ -22,7 +22,7 @@ import (
 	goparser "go/parser"
 	"go/printer"
 	"go/token"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -32,7 +32,6 @@ import (
 	"github.com/cockroachdb/crlfmt/internal/render"
 	"github.com/cockroachdb/gostdlib/go/format"
 	"github.com/cockroachdb/gostdlib/x/tools/imports"
-	"github.com/cockroachdb/ttycolor"
 )
 
 var (
@@ -46,12 +45,6 @@ var (
 	srcDir       = flag.String("srcdir", "", "resolve imports as if the source file is from the given directory (if a file is given, the parent directory is used)")
 )
 
-var (
-	red   = string(ttycolor.StdoutProfile[ttycolor.Red])
-	green = string(ttycolor.StdoutProfile[ttycolor.Green])
-	reset = string(ttycolor.StdoutProfile[ttycolor.Reset])
-)
-
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
@@ -63,7 +56,7 @@ func run() error {
 	flag.Parse()
 
 	if flag.NArg() == 0 {
-		content, err := ioutil.ReadAll(os.Stdin)
+		content, err := io.ReadAll(os.Stdin)
 		if err != nil {
 			return err
 		}
@@ -117,7 +110,7 @@ func run() error {
 }
 
 func checkPath(path string) error {
-	src, err := ioutil.ReadFile(path)
+	src, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
@@ -138,7 +131,7 @@ func checkPath(path string) error {
 		}
 
 		if *overwrite {
-			err := ioutil.WriteFile(path, output, 0)
+			err := os.WriteFile(path, output, 0)
 			if err != nil {
 				return err
 			}

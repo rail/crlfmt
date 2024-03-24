@@ -28,9 +28,9 @@ import (
 // sort.Interface to sort imports by path.
 type ImportGroup []parser.ImportSpec
 
-func (ig ImportGroup) Len() int { return len(ig) }
+func (ig ImportGroup) Len() int           { return len(ig) }
 func (ig ImportGroup) Less(i, j int) bool { return ig[i].Path() < ig[j].Path() }
-func (ig ImportGroup) Swap(i, j int) { ig[i], ig[j] = ig[j], ig[i] }
+func (ig ImportGroup) Swap(i, j int)      { ig[i], ig[j] = ig[j], ig[i] }
 
 // An ImportBlock is a collectino of ImportGroups.
 type ImportBlock []ImportGroup
@@ -196,14 +196,14 @@ func Func(w io.Writer, f *parser.File, fn *parser.FuncDecl, tabSize, wrapCol int
 		}
 	}
 
-	w.Write(f.Slice(fn.Pos(), opening))
+	_, _ = w.Write(f.Slice(fn.Pos(), opening))
 	// colOffset - 1 accounts for `func (r *foo) bar(`
 	colOffset := f.Position(opening).Column - 1
 	singleLineLen := colOffset + len(paramsJoined) + len(funcMid) + len(resultsJoined) + len(funcEnd) + brace
 	if singleLineLen <= wrapCol && !paramsHaveComments && !resultsHaveComments {
-		w.Write(paramsJoined)
+		_, _ = w.Write(paramsJoined)
 		fmt.Fprint(w, funcMid)
-		w.Write(resultsJoined)
+		_, _ = w.Write(resultsJoined)
 		fmt.Fprint(w, funcEnd)
 	} else {
 		// we're into wrapping, so the return types block usually starts on own
@@ -224,7 +224,7 @@ func Func(w io.Writer, f *parser.File, fn *parser.FuncDecl, tabSize, wrapCol int
 		fmt.Fprint(w, funcMid)
 		singleLineResultsLen := resTypeStartingCol + len(funcMid) + len(resultsJoined) + len(funcEnd) + brace
 		if (singleLineResultsLen <= wrapCol || exactlyOneResult) && !resultsHaveComments {
-			w.Write(resultsJoined)
+			_, _ = w.Write(resultsJoined)
 			fmt.Fprint(w, funcEnd)
 		} else {
 			fmt.Fprintln(w)
@@ -234,5 +234,5 @@ func Func(w io.Writer, f *parser.File, fn *parser.FuncDecl, tabSize, wrapCol int
 			fmt.Fprint(w, funcEnd)
 		}
 	}
-	w.Write(f.Slice(fn.Type.End(), closing))
+	_, _ = w.Write(f.Slice(fn.Type.End(), closing))
 }
